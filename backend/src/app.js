@@ -3,6 +3,8 @@ const express = require('express')
 const authRoutes = require('./routes/authRoutes')
 const userRoutes = require('./routes/userRoutes')
 const jobRoutes = require('./routes/jobRoutes')
+const companyRoutes = require('./routes/companyRoutes')
+
 
 const app = express()
 
@@ -20,5 +22,6 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/jobs', jobRoutes)
+app.use('/api/company', companyRoutes)
 
 module.exports = app

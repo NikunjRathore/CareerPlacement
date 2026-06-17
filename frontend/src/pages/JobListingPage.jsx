@@ -16,7 +16,7 @@ function JobListingPage({ user }) {
   return (
     <div className="min-h-screen bg-slate-900 text-white p-6">
       <header className="max-w-6xl mx-auto flex justify-between items-center mb-10">
-        <button onClick={() => navigate('/dashboard')} className="text-teal-400 font-semibold hover:underline">
+        <button onClick={() => navigate('/user/dashboard')} className="text-teal-400 font-semibold hover:underline">
           &larr; Back to Dashboard
         </button>
         <h1 className="text-3xl font-bold">Upcoming Companies</h1>

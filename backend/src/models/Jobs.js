@@ -12,13 +12,11 @@ const jobSchema = new mongoose.Schema({
         trim: true,
     },
     location:{
-        type: String,
-        required: true,
-        trim: true,
+        type: [String],
+        required: true
     },
     ctc:{
         type: Number,
-        required: true,
     },
     offerType:{
         type: String,
@@ -30,6 +28,10 @@ const jobSchema = new mongoose.Schema({
         required: true,
     },
     minCgpa:{
+        type: Number,
+        required: true,
+    },
+    minGradYear:{
         type: Number,
         required: true,
     },

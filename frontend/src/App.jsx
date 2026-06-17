@@ -6,6 +6,11 @@ import DashboardPage from './pages/DashboardPage'
 import JobListingPage from './pages/JobListingPage'
 import ProfilePage from './pages/ProfilePage'
 import { JobLayout } from './context/JobContext'
+import AdminDashboard from './pages/Admin/AdminDashboard'
+import AddJob from './pages/Admin/AddJob'
+import ErrorPage from './pages/ErrorPage'
+import AddCompany from './pages/Admin/AddCompany'
+
 
 function AppRoutes() {
   const { token } = useAuth()
@@ -14,12 +19,16 @@ function AppRoutes() {
     <Routes>
       {token ? (
         <>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route element={<JobLayout />}>
-            <Route path="/jobs" element={<JobListingPage />} />
-          </Route>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/user/dashboard" element={<DashboardPage />} />
+            <Route element={<JobLayout />}>
+              <Route path="/user/jobs" element={<JobListingPage />} />
+            </Route>
+            <Route path="/user/profile" element={<ProfilePage />} />
+            <Route path="*" element={<ErrorPage />} />
+            <Route path="/admin" element={<AdminDashboard />}>
+              <Route path="add_job" element={<AddJob />} />
+              <Route path="add_company" element={<AddCompany />} />
+            </Route>
         </>
       ) : (
         <>

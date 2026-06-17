@@ -1,10 +1,19 @@
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useNavigate, Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 function DashboardPage() {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const location = useLocation()
+  const { admin, logout } = useAuth()
 
+  const isBaseAdminRoute = location.pathname === '/admin' || location.pathname === '/admin/';
+
+  const handleAddJobs =()=>{
+    navigate('/admin/add_job'); 
+  }
+  const handleAddCompany = () => {
+    navigate('/admin/add_company');
+  }
   const handleLogout = () => {
     logout()
   }
@@ -28,6 +37,20 @@ function DashboardPage() {
             </div>
             <button
               type="button"
+              onClick={handleAddJobs}
+              className="group relative inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition duration-200 hover:shadow-xl hover:shadow-blue-600/40 active:scale-95"
+            >
+              Add Jobs
+            </button>
+            <button
+              type="button"
+              onClick={handleAddCompany}
+              className="group relative inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-purple-600 to-purple-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/20 transition duration-200 hover:shadow-xl hover:shadow-red-600/40 active:scale-95"
+            >
+              Add Company
+            </button>
+            <button
+              type="button"
               onClick={handleLogout}
               className="group relative inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-red-600 to-red-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/20 transition duration-200 hover:shadow-xl hover:shadow-red-600/40 active:scale-95"
             >
@@ -38,18 +61,21 @@ function DashboardPage() {
 
         {/* Main content */}
         <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
-          <div className="grid gap-6 lg:grid-cols-3">
+          {isBaseAdminRoute ? (
+            <>
+              <div className="grid gap-6 lg:grid-cols-3">
             {/* Welcome card */}
             <div className="lg:col-span-2">
               <div className="group rounded-2xl border border-slate-700/50 bg-linear-to-br from-slate-800/50 to-slate-900/50 p-8 shadow-xl shadow-slate-900/50 backdrop-blur transition duration-300 hover:border-teal-500/50 hover:shadow-teal-500/10">
                 <div className="flex items-start gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-br from-teal-400 to-teal-600 text-2xl font-bold text-white shadow-lg shadow-teal-600/30">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                    {admin?.name?.charAt(0)?.toUpperCase() || 'A'}
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Welcome back</p>
-                    <h2 className="mt-2 text-3xl font-bold text-white">{user?.name || 'User'}</h2>
-                    <p className="mt-3 text-slate-300">{user?.email || 'No email'}</p>
+                    <h2 className="mt-2 text-3xl font-bold text-white">{admin?.name || 'Super Admin'}</h2>
+                    <p className="mt-3 text-slate-300">Admin</p>
+                    <p className="mt-3 text-slate-300">{admin?.email || 'No email'}</p>
                   </div>
                 </div>
               </div>
@@ -72,9 +98,9 @@ function DashboardPage() {
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: 'Profile Completion', value: '100%', icon: '📋', color: 'from-blue-400 to-blue-600' },
-              { label: 'Applications', value: '0', icon: '📬', color: 'from-purple-400 to-purple-600' },
-              { label: 'Interviews', value: '0', icon: '🎤', color: 'from-pink-400 to-pink-600' },
-              { label: 'Offers', value: '0', icon: '🎉', color: 'from-orange-400 to-orange-600' },
+              { label: 'Companies visited', value: '0', icon: '📬', color: 'from-purple-400 to-purple-600' },
+              { label: 'Applications Received', value: '0', icon: '🎤', color: 'from-pink-400 to-pink-600' },
+              { label: 'Successful Offers', value: '0', icon: '🎉', color: 'from-orange-400 to-orange-600' },
             ].map((stat, idx) => (
               <div
                 key={idx}
@@ -96,10 +122,10 @@ function DashboardPage() {
             <h3 className="text-lg font-bold text-white">Getting Started</h3>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {[
-                { title: 'Complete Your Profile', desc: 'Add your details to stand out to employers', path: '/user/profile' },
-                { title: 'Browse Positions', desc: 'Explore job openings matching your skills', path: '/user/jobs' },
-                { title: 'Apply to Jobs', desc: 'Submit applications to top companies', path: '/user/jobs' },
-                { title: 'Track Progress', desc: 'Monitor your applications and interviews', path: '/user/progress' },
+                { title: 'Complete Your Profile', desc: 'Add your details to stand out to employers', path: '/profile' },
+                { title: 'FeedBacks', desc: 'Explore the suggestions and feedback', path: '' },
+                { title: 'Add Jobs', desc: 'Update the upcoming jobs', path: '' },
+                { title: 'Issues', desc: 'Monitor the issues in placement process', path: '/progress' },
               ].map((item, idx) => (
                 <div 
                   key={idx} 
@@ -111,6 +137,10 @@ function DashboardPage() {
               ))}
             </div>
           </div>
+            </>
+          ) : (
+            <Outlet />
+          )}
         </div>
       </div>
     </main>
