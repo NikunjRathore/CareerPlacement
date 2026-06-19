@@ -4,7 +4,7 @@ import { useJobs } from '../context/JobContext'
 import { useAuth } from '../context/AuthContext'
 import { createApplication } from '../api/applicationApi'
 
-function JobListingPage({ user }) {
+function JobListingPage() {
   const navigate = useNavigate()
   const { jobs } = useJobs()
   const [filter, setFilter] = useState({ dept: '', minCgpa: '' })
@@ -74,7 +74,7 @@ function JobListingPage({ user }) {
                 <button
                   onClick={async () => {
                     try {
-                      await createApplication(token, { job_id: job.id, company_id: job.company?._id || job.company })
+                      await createApplication(token, { job_id: job.id })
                       alert('Application submitted')
                     } catch (err) {
                       alert(err.message || 'Failed to apply')

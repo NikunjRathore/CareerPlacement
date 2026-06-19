@@ -5,8 +5,10 @@ const Jobs = require('../models/Jobs');
 exports.getUserApplications = async (req, res) => {
   try {
     const applications = await ApplicationTracker.find({ user: req.user._id })
-      .populate('job')
-      .populate('company')
+      .populate({
+        path: 'job',
+        populate: { path: 'company' }
+      })
       .sort({ applied_date: -1 });
 
     res.json(applications);
@@ -19,8 +21,10 @@ exports.getUserApplications = async (req, res) => {
 exports.getApplication = async (req, res) => {
   try {
     const application = await ApplicationTracker.findById(req.params.id)
-      .populate('job')
-      .populate('company');
+      .populate({
+        path: 'job',
+        populate: { path: 'company' }
+      });
 
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
@@ -40,11 +44,16 @@ exports.getApplication = async (req, res) => {
 // CREATE new application
 exports.createApplication = async (req, res) => {
   try {
-    const { job_id, company_id } = req.body;
+    const { job_id } = req.body;
+    const userId = req.user._id;
+
+    if (!job_id) {
+      return res.status(400).json({ message: 'Job is required' });
+    }
 
     // Check if user already applied
     const existing = await ApplicationTracker.findOne({
-      user: req.user._id,
+      user: userId,
       job: job_id
     });
 
@@ -54,18 +63,24 @@ exports.createApplication = async (req, res) => {
 
     // Try to use rounds from the job if available
     const job = await Jobs.findById(job_id);
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
     const defaultRounds = ['Online Test', 'Technical Round', 'HR Round'];
     const rounds_pending = (job && Array.isArray(job.rounds) && job.rounds.length) ? job.rounds : defaultRounds;
 
     const application = new ApplicationTracker({
-      user: req.user._id,
+      user: userId,
       job: job_id,
-      company: company_id,
       rounds_pending
     });
 
     await application.save();
-    await application.populate('job').populate('company');
+    await application.populate({
+      path: 'job',
+      populate: { path: 'company' }
+    });
 
     res.status(201).json(application);
   } catch (error) {
@@ -100,7 +115,10 @@ exports.updateApplication = async (req, res) => {
     application.updated_date = new Date();
 
     await application.save();
-    await application.populate('job').populate('company');
+    await application.populate({
+      path: 'job',
+      populate: { path: 'company' }
+    });
 
     res.json(application);
   } catch (error) {

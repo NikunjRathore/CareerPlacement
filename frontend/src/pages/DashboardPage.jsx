@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
+import { getUserApplications } from '../api/applicationApi';
 
 function DashboardPage() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const [notifications, setNotifications] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const [applicaionsLoading, setApplicationsLoading] = useState(true);
   const [notificationsError, setNotificationsError] = useState(null);
+  const [applicationsError, setApplicationsError] = useState(null);
+  const {token} = useAuth();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -24,11 +29,37 @@ function DashboardPage() {
       }
     };
     fetchNotifications();
+    const fetchApplicationData= async ()=>{
+       try {
+          setApplicationsLoading(true);
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/applications`,{
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+          setApplications(response.data);
+        } catch (err) {
+          console.error('Error fetching application:', err);
+          setApplicationsError('Failed to loed applications.')
+        } finally{
+          setApplicationsLoading(false);
+        }
+    }
+    fetchApplicationData();
+  
   }, []); // Empty dependency array means it runs once on mount
 
   const handleLogout = () => {
     logout()
   } 
+
+const interviewCount = applications.filter(app =>
+  ["HR Round", "Round 1", "Round 2", "Technical Round"]
+    .some(round => app.rounds_completed?.includes(round))
+).length;
+
+const offerCount = applications.filter(app =>
+  app.status === "Selected").length;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-950">
@@ -93,9 +124,9 @@ function DashboardPage() {
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: 'Profile Completion', value: '100%', icon: '📋', color: 'from-blue-400 to-blue-600' },
-              { label: 'Applications', value: '0', icon: '📬', color: 'from-purple-400 to-purple-600' },
-              { label: 'Interviews', value: '0', icon: '🎤', color: 'from-pink-400 to-pink-600' },
-              { label: 'Offers', value: '0', icon: '🎉', color: 'from-orange-400 to-orange-600' },
+              { label: 'Applications', value: applications.length, icon: '📬', color: 'from-purple-400 to-purple-600' },
+              { label: 'Interviews',value: interviewCount, icon: '🎤', color: 'from-pink-400 to-pink-600' },
+              { label: 'Offers', value: offerCount, icon: '🎉', color: 'from-orange-400 to-orange-600' },
             ].map((stat, idx) => (
               <div
                 key={idx}

@@ -1,4 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react'
+import { getProfile, login as loginRequest, register as registerRequest } from '../api/authApi'
 
 export const AuthContext = createContext()
 
@@ -11,68 +13,83 @@ export const useAuth = () => {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user')
-    try {
-      return savedUser ? JSON.parse(savedUser) : null
-    } catch (e) {
-      return null
-    }
-  })
-  const [token, setToken] = useState(() => localStorage.getItem('token'))
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    // Keep user state in sync with token presence
-    if (token) {
-      const savedUser = localStorage.getItem('user')
-      if (savedUser) {
-        try {
-          setUser(JSON.parse(savedUser))
-        } catch (e) {}
-      }
-    } else {
-      setUser(null)
-    }
-  }, [token])
-
-  const login = async (formData) => {
-    const response = await fetch('http://localhost:5000/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    })
-    const data = await response.json()
-    if (response.ok) {
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-      setToken(data.token)
-      setUser(data.user)
-    } else {
-      throw new Error(data.message || 'Login failed. Please check your credentials.')
-    }
-  }
-
-  const register = async (formData) => {
-    const response = await fetch('http://localhost:5000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    })
-    const data = await response.json()
-    if (!response.ok) {
-      throw new Error(data.message || 'Registration failed. Try a different email.')
-    }
-  }
-
-  const logout = () => {
+  const clearSession = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setToken(null)
     setUser(null)
   }
 
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user')
+    try {
+      return savedUser ? JSON.parse(savedUser) : null
+    } catch {
+      return null
+    }
+  })
+  const [token, setToken] = useState(() => localStorage.getItem('token'))
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('token')))
+
+  useEffect(() => {
+    let isActive = true
+
+    const validateToken = async () => {
+      if (!token) {
+        localStorage.removeItem('user')
+        setUser(null)
+        setLoading(false)
+        return
+      }
+
+      try {
+        const data = await getProfile(token)
+        if (!isActive) return
+
+        localStorage.setItem('user', JSON.stringify(data.user))
+        setUser(data.user)
+      } catch {
+        if (!isActive) return
+
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        setToken(null)
+        setUser(null)
+      } finally {
+        if (isActive) setLoading(false)
+      }
+    }
+
+    validateToken()
+
+    return () => {
+      isActive = false
+    }
+  }, [token])
+
+  const login = async (formData) => {
+    const data = await loginRequest(formData)
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
+    setToken(data.token)
+    setUser(data.user)
+  }
+
+  const register = async (formData) => {
+    await registerRequest(formData)
+  }
+
+  const logout = () => {
+    clearSession()
+  }
+
   const updateProfileState = (updatedUser) => {
+    if (!updatedUser) {
+      setUser(null)
+      localStorage.removeItem('user')
+      return
+    }
+
     localStorage.setItem('user', JSON.stringify(updatedUser))
     setUser(updatedUser)
   }

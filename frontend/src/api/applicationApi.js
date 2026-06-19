@@ -1,13 +1,13 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
-export async function createApplication(token, { job_id, company_id }) {
+export async function createApplication(token, { job_id }) {
   const res = await fetch(`${API_URL}/applications`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ job_id, company_id })
+    body: JSON.stringify({ job_id })
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.message || 'Failed to create application')

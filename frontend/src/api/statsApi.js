@@ -25,7 +25,7 @@ export function getAllStats(token) {
 }
 
 export function getLatestStats() {
-  return request('/latest')
+  return request('/latest');
 }
 
 export function getStatsByYear(year) {

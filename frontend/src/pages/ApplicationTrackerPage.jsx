@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const ApplicationTrackerPage = () => {
-  const { user, token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const statusColors = {
     applied: 'bg-blue-500/20 text-blue-300 border-blue-500/50',
@@ -25,12 +23,7 @@ const ApplicationTrackerPage = () => {
     waitlist: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50'
   };
 
-  useEffect(() => {
-    fetchApplications();
-    fetchStats();
-  }, []);
-
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/applications`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -41,9 +34,9 @@ const ApplicationTrackerPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/applications/stats`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -52,7 +45,14 @@ const ApplicationTrackerPage = () => {
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
-  };
+  }, [token]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    fetchApplications();
+    fetchStats();
+  }, [fetchApplications, fetchStats]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleStatusChange = async (appId, newStatus) => {
     try {
@@ -77,7 +77,7 @@ const ApplicationTrackerPage = () => {
         });
         fetchApplications();
         fetchStats();
-      } catch (error) {
+      } catch {
         alert('Error deleting application');
       }
     }
@@ -130,7 +130,7 @@ const ApplicationTrackerPage = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-white">{app.job?.role}</h3>
-                    <p className="text-slate-400">{app.company?.name}</p>
+                    <p className="text-slate-400">{app.job?.company?.name || 'Unknown Company'}</p>
                     <p className="text-sm text-slate-500">Applied: {new Date(app.applied_date).toLocaleDateString()}</p>
                   </div>
                   <span className={`px-4 py-2 rounded-full border text-sm font-semibold ${statusColors[app.status]}`}>

@@ -23,7 +23,7 @@ export default function StatsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mb-4"></div>
           <p className="text-slate-400 text-lg">Loading placement stats...</p>
@@ -34,7 +34,7 @@ export default function StatsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-red-500/20 border border-red-500 rounded-lg p-6 text-red-300">{error}</div>
         </div>
@@ -44,7 +44,7 @@ export default function StatsPage() {
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 text-slate-400">No placement statistics available yet.</div>
         </div>
@@ -53,7 +53,7 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Placement Statistics {stats.year}</h1>
@@ -61,19 +61,19 @@ export default function StatsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-teal-900/40 to-teal-800/20 border border-teal-700/50 rounded-xl p-6 shadow-lg">
+          <div className="bg-linear-to-br from-teal-900/40 to-teal-800/20 border border-teal-700/50 rounded-xl p-6 shadow-lg">
             <div className="text-sm text-teal-300 mb-2">Placement Percentage</div>
             <div className="text-4xl font-bold text-teal-400">{stats.placement_percentage}%</div>
           </div>
-          <div className="bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-700/50 rounded-xl p-6 shadow-lg">
+          <div className="bg-linear-to-br from-blue-900/40 to-blue-800/20 border border-blue-700/50 rounded-xl p-6 shadow-lg">
             <div className="text-sm text-blue-300 mb-2">Placed Students</div>
             <div className="text-4xl font-bold text-blue-400">{stats.placed_students}</div>
           </div>
-          <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/20 border border-purple-700/50 rounded-xl p-6 shadow-lg">
+          <div className="bg-linear-to-br from-purple-900/40 to-purple-800/20 border border-purple-700/50 rounded-xl p-6 shadow-lg">
             <div className="text-sm text-purple-300 mb-2">Total Students</div>
             <div className="text-4xl font-bold text-purple-400">{stats.total_students}</div>
           </div>
-          <div className="bg-gradient-to-br from-orange-900/40 to-orange-800/20 border border-orange-700/50 rounded-xl p-6 shadow-lg">
+          <div className="bg-linear-to-br from-orange-900/40 to-orange-800/20 border border-orange-700/50 rounded-xl p-6 shadow-lg">
             <div className="text-sm text-orange-300 mb-2">Year</div>
             <div className="text-4xl font-bold text-orange-400">{stats.year}</div>
           </div>
@@ -146,7 +146,7 @@ export default function StatsPage() {
                     </div>
                     <div className="mt-3 w-full bg-slate-800 rounded-full h-2">
                       <div
-                        className="bg-gradient-to-r from-teal-500 to-emerald-500 h-2 rounded-full transition"
+                        className="bg-linear-to-r from-teal-500 to-emerald-500 h-2 rounded-full transition"
                         style={{ width: `${dept.placement_percentage}%` }}
                       ></div>
                     </div>
