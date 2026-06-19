@@ -44,6 +44,11 @@ const jobSchema = new mongoose.Schema({
         required: true,
         trim: true
     }
+    ,
+    rounds: {
+        type: [String],
+        default: []
+    }
 })
 
 module.exports = mongoose.model('Jobs', jobSchema)

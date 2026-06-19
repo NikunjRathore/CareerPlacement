@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useJobs } from '../context/JobContext'
+import { useAuth } from '../context/AuthContext'
+import { createApplication } from '../api/applicationApi'
 
 function JobListingPage({ user }) {
   const navigate = useNavigate()
@@ -12,6 +14,8 @@ function JobListingPage({ user }) {
     const matchCgpa = filter.minCgpa === '' || job.minCgpa <= parseFloat(filter.minCgpa)
     return matchDept && matchCgpa
   })
+
+  const { token } = useAuth()
 
   return (
     <div className="min-h-screen bg-slate-900 text-white p-6">
@@ -67,7 +71,17 @@ function JobListingPage({ user }) {
                     <span>📅 {job.date}</span>
                   </div>
                 </div>
-                <button className="bg-teal-600 hover:bg-teal-500 px-6 py-2 rounded-lg font-bold transition">
+                <button
+                  onClick={async () => {
+                    try {
+                      await createApplication(token, { job_id: job.id, company_id: job.company?._id || job.company })
+                      alert('Application submitted')
+                    } catch (err) {
+                      alert(err.message || 'Failed to apply')
+                    }
+                  }}
+                  className="bg-teal-600 hover:bg-teal-500 px-6 py-2 rounded-lg font-bold transition"
+                >
                   Apply Now
                 </button>
               </div>

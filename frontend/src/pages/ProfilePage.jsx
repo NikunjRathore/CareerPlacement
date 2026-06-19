@@ -72,7 +72,7 @@ function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-900 text-white p-6">
       <header className="max-w-4xl mx-auto flex justify-between items-center mb-8">
-        <button onClick={() => navigate('/dashboard')} className="text-teal-400 font-semibold hover:underline">
+        <button onClick={() => navigate('/user/dashboard')} className="text-teal-400 font-semibold hover:underline">
           &larr; Back to Dashboard
         </button>
         <h1 className="text-2xl font-bold">Student Profile</h1>

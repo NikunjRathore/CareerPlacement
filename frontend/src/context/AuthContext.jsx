@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 
-const AuthContext = createContext()
+export const AuthContext = createContext()
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -77,6 +77,7 @@ export function AuthProvider({ children }) {
     setUser(updatedUser)
   }
 
+
   const value = {
     user,
     token,
@@ -84,7 +85,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
-    updateProfileState
+    updateProfileState,
   }
 
   return (

@@ -1,13 +1,34 @@
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'
+import axios from 'axios'
 
 function DashboardPage() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const [notificationsError, setNotificationsError] = useState(null);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        setNotificationsLoading(true);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/notifications`);
+        setNotifications(response.data);
+      } catch (err) {
+        console.error('Error fetching notifications:', err);
+        setNotificationsError('Failed to load notifications.');
+      } finally {
+        setNotificationsLoading(false);
+      }
+    };
+    fetchNotifications();
+  }, []); // Empty dependency array means it runs once on mount
 
   const handleLogout = () => {
     logout()
-  }
+  } 
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-950">
@@ -91,18 +112,50 @@ function DashboardPage() {
             ))}
           </div>
 
+          {/* Notification Panel */}
+            <div className='w-full rounded-2xl border border-slate-700/50 bg-linear-to-br from-slate-800/50 to-slate-900/50 p-8 shadow-xl shadow-slate-900/50 backdrop-blur mt-5'>
+              <h3 className="text-lg font-bold text-white mb-4">Notifications</h3>
+              {notificationsLoading ? (
+                <div className="flex justify-center items-center h-24">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
+                </div>
+              ) : notificationsError ? (
+                <p className="text-red-400 text-center">{notificationsError}</p>
+              ) : notifications.length > 0 ? (
+                <ul className="space-y-3">
+                  {notifications.map((notification) => (
+                    <li key={notification._id} className="bg-slate-700/30 p-3 rounded-lg flex items-center justify-between">
+                      <p className="text-slate-200 text-sm">{notification.message}</p>
+                      {notification.date && (
+                        <span className="text-xs text-slate-400">
+                          {new Date(notification.date).toLocaleDateString()}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-slate-400 text-center">No new notifications.</p>
+              )}
+            </div>
           {/* Info section */}
           <div className="mt-8 rounded-2xl border border-slate-700/50 bg-linear-to-br from-slate-800/50 to-slate-900/50 p-8 shadow-xl shadow-slate-900/50 backdrop-blur">
-            <h3 className="text-lg font-bold text-white">Getting Started</h3>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <h3 className="text-lg font-bold text-white">Quick Links</h3>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
-                { title: 'Complete Your Profile', desc: 'Add your details to stand out to employers', path: '/user/profile' },
-                { title: 'Browse Positions', desc: 'Explore job openings matching your skills', path: '/user/jobs' },
-                { title: 'Apply to Jobs', desc: 'Submit applications to top companies', path: '/user/jobs' },
-                { title: 'Track Progress', desc: 'Monitor your applications and interviews', path: '/user/progress' },
+                { title: 'Profile', desc: 'Edit your profile', path: '/user/profile' },
+                { title: 'Jobs', desc: 'Browse available jobs', path: '/user/jobs' },
+                { title: 'Applications', desc: 'Track your applications', path: '/user/applications' },
+                { title: 'Coding Profile', desc: 'Add coding platform profiles', path: '/user/coding-profile' },
+                { title: 'Resume', desc: 'Upload and analyze resume', path: '/user/resume' },
+                { title: 'Readiness', desc: 'Placement readiness and suggestions', path: '/user/readiness' },
+                { title: 'Company Targets', desc: 'View & add target companies', path: '/user/company-targeting' },
+                  { title: 'Interview Prep', desc: 'DSA & interview experience', path: '/user/interview-prep' },
+                  { title: 'Placement Stats', desc: 'View placement statistics', path: '/user/stats' },
+                { title: 'Mock interview', desc: 'Check your current preparation with a mock interview', path: '/user/mock-interview' }
               ].map((item, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   onClick={() => item.path && navigate(item.path)}
                   className={`rounded-lg border border-slate-700/30 bg-slate-900/30 p-4 ${item.path ? 'cursor-pointer hover:border-teal-500/50 transition' : ''}`}>
                   <p className="font-semibold text-teal-400">{item.title}</p>

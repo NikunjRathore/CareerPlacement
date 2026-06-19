@@ -9,7 +9,7 @@ function LoginPage() {
 
   const handleLogin = async (formData) => {
     await login(formData)
-    navigate('/dashboard')
+    navigate('/user/dashboard')
   }
 
   return (

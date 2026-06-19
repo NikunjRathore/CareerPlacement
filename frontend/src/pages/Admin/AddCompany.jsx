@@ -18,22 +18,36 @@ const AddCompany = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     try {
-      console.log('Sending formData:', formData);
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/company/add_company`, formData);
-      console.log('Response:', response.data);
-      alert('Company added successfully!');
-      navigate('/admin');
+      // Validation
+      if (!formData.name || formData.name.trim().length === 0) {
+        alert('Company name is required')
+        setLoading(false)
+        return
+      }
+      if (!formData.description || formData.description.trim().length < 10) {
+        alert('Description must be at least 10 characters')
+        setLoading(false)
+        return
+      }
+      if (formData.website && !formData.website.match(/^https?:\/\/.+/)) {
+        alert('Please enter a valid website URL')
+        setLoading(false)
+        return
+      }
+
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/company/add_company`, formData)
+      alert('Company added successfully!')
+      navigate('/admin')
     } catch (err) {
-      console.error('Error details:', err.response?.data);
-      const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to add company';
-      alert(`Error: ${errorMessage}`);
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to add company'
+      alert(`Error: ${errorMessage}`)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-slate-800/50 border border-slate-700 rounded-2xl shadow-xl backdrop-blur-sm">

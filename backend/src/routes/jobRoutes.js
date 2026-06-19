@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Job = require('../models/Jobs');
+const adminProtect = require('../middleware/adminMiddleware');
 
 // @route   GET /api/jobs
 // @desc    Get all upcoming job listings
@@ -15,7 +16,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/add_job', async (req, res) => {
+router.post('/add_job', adminProtect, async (req, res) => {
     try {
         const newJob = new Job(req.body);
         const savedJob = await newJob.save();

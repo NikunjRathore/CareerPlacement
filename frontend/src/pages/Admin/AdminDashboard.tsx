@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 function DashboardPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { admin, logout } = useAuth()
+  const { user, logout } = useAuth()
 
   const isBaseAdminRoute = location.pathname === '/admin' || location.pathname === '/admin/';
 
@@ -13,6 +13,9 @@ function DashboardPage() {
   }
   const handleAddCompany = () => {
     navigate('/admin/add_company');
+  }
+  const handleAddNotification = () => {
+    navigate('/admin/add_notification');
   }
   const handleLogout = () => {
     logout()
@@ -37,20 +40,6 @@ function DashboardPage() {
             </div>
             <button
               type="button"
-              onClick={handleAddJobs}
-              className="group relative inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition duration-200 hover:shadow-xl hover:shadow-blue-600/40 active:scale-95"
-            >
-              Add Jobs
-            </button>
-            <button
-              type="button"
-              onClick={handleAddCompany}
-              className="group relative inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-purple-600 to-purple-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/20 transition duration-200 hover:shadow-xl hover:shadow-red-600/40 active:scale-95"
-            >
-              Add Company
-            </button>
-            <button
-              type="button"
               onClick={handleLogout}
               className="group relative inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-red-600 to-red-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/20 transition duration-200 hover:shadow-xl hover:shadow-red-600/40 active:scale-95"
             >
@@ -69,13 +58,13 @@ function DashboardPage() {
               <div className="group rounded-2xl border border-slate-700/50 bg-linear-to-br from-slate-800/50 to-slate-900/50 p-8 shadow-xl shadow-slate-900/50 backdrop-blur transition duration-300 hover:border-teal-500/50 hover:shadow-teal-500/10">
                 <div className="flex items-start gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-br from-teal-400 to-teal-600 text-2xl font-bold text-white shadow-lg shadow-teal-600/30">
-                    {admin?.name?.charAt(0)?.toUpperCase() || 'A'}
+                    {user?.name?.charAt(0)?.toUpperCase() || 'A'}
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Welcome back</p>
-                    <h2 className="mt-2 text-3xl font-bold text-white">{admin?.name || 'Super Admin'}</h2>
+                    <h2 className="mt-2 text-3xl font-bold text-white">{user?.name || 'Super Admin'}</h2>
                     <p className="mt-3 text-slate-300">Admin</p>
-                    <p className="mt-3 text-slate-300">{admin?.email || 'No email'}</p>
+                    <p className="mt-3 text-slate-300">{user?.email || 'No email'}</p>
                   </div>
                 </div>
               </div>
@@ -90,6 +79,9 @@ function DashboardPage() {
                 </div>
                 <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Account Status</p>
                 <p className="mt-3 text-3xl font-bold text-emerald-400">All Set</p>
+
+                {/* Quick Actions List */}
+                
               </div>
             </div>
           </div>
@@ -119,13 +111,13 @@ function DashboardPage() {
 
           {/* Info section */}
           <div className="mt-8 rounded-2xl border border-slate-700/50 bg-linear-to-br from-slate-800/50 to-slate-900/50 p-8 shadow-xl shadow-slate-900/50 backdrop-blur">
-            <h3 className="text-lg font-bold text-white">Getting Started</h3>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <h3 className="text-lg font-bold text-white">Admin Links</h3>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
               {[
-                { title: 'Complete Your Profile', desc: 'Add your details to stand out to employers', path: '/profile' },
-                { title: 'FeedBacks', desc: 'Explore the suggestions and feedback', path: '' },
-                { title: 'Add Jobs', desc: 'Update the upcoming jobs', path: '' },
-                { title: 'Issues', desc: 'Monitor the issues in placement process', path: '/progress' },
+                { title: 'Add Job', desc: 'Create a new job posting', path: '/admin/add_job' },
+                { title: 'Add Company', desc: 'Register a new company', path: '/admin/add_company' },
+                { title: 'Add Notification', desc: 'Broadcast notifications', path: '/admin/add_notification' },
+                { title: 'Add Placement Stats', desc: 'Add placement statistics', path: '/admin/stats' }
               ].map((item, idx) => (
                 <div 
                   key={idx} 
