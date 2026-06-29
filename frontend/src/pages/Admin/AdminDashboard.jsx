@@ -56,7 +56,7 @@ function DashboardPage() {
          try {
             setJobsLoading(true);
             const jobs = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`);
-            setJobCount(jobs.length);
+            setJobCount(jobs.data.length);
           } catch (err) {
             console.error('Error fetching jobs:', err);
             setJobsError("Failed to loed jobs.")
@@ -69,7 +69,7 @@ function DashboardPage() {
          try {
             setCompaniesLoading(true);
             const companies = await axios.get(`${import.meta.env.VITE_API_URL}/company`);
-            setCompanyCount(companies.length);
+            setCompanyCount(companies.data.length);
           } catch (err) {
             console.error('Error fetching companies:', err);
             setCompaniesError("Failed to load companies.")
