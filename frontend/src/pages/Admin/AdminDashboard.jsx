@@ -152,7 +152,7 @@ const offerCount = applications.filter(app =>
           {/* Quick stats */}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { label: 'Companies visited', value: '0', icon: '📬', color: 'from-purple-400 to-purple-600' },
+              { label: 'Companies visited', value: companyCount, icon: '📬', color: 'from-purple-400 to-purple-600' },
               { label: 'Job Openings', value: jobCount, icon: '📋', color: 'from-blue-400 to-blue-600' },
               { label: 'Applications Received', value: applications.length, icon: '🎤', color: 'from-pink-400 to-pink-600' },
               { label: 'Successful Offers', value: offerCount, icon: '🎉', color: 'from-orange-400 to-orange-600' },
