@@ -1,5 +1,7 @@
 import { useNavigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 function DashboardPage() {
   const navigate = useNavigate()
@@ -20,6 +22,67 @@ function DashboardPage() {
   const handleLogout = () => {
     logout()
   }
+
+    const [applications, setApplications] = useState([]);
+    const [applicaionsLoading, setApplicationsLoading] = useState(true);
+    const [applicationsError, setApplicationsError] = useState(null);
+    const [jobCount, setJobCount] = useState(0);
+    const [jobsLoading, setJobsLoading] = useState(true);
+    const [jobsError, setJobsError] = useState(null);
+    const [companyCount, setCompanyCount] = useState(0);
+    const [companiesLoading, setCompaniesLoading] = useState(true);
+    const [companiesError, setCompaniesError] = useState(null);
+    const {token} = useAuth();
+
+    useEffect(() => {
+      const fetchApplicationData= async ()=>{
+         try {
+            setApplicationsLoading(true);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/applications`,{
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+            setApplications(response.data);
+          } catch (err) {
+            console.error('Error fetching application:', err);
+            setApplicationsError("Failed to loed applications.")
+          } finally{
+            setApplicationsLoading(false);
+          }
+      }
+      fetchApplicationData();
+      const fetchJobData= async ()=>{
+         try {
+            setJobsLoading(true);
+            const jobs = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`);
+            setJobCount(jobs.length);
+          } catch (err) {
+            console.error('Error fetching jobs:', err);
+            setJobsError("Failed to loed jobs.")
+          } finally{
+            setJobsLoading(false);
+          }
+      }
+      fetchJobData();
+      const fetchCompanyData= async ()=>{
+         try {
+            setCompaniesLoading(true);
+            const companies = await axios.get(`${import.meta.env.VITE_API_URL}/company`);
+            setCompanyCount(companies.length);
+          } catch (err) {
+            console.error('Error fetching companies:', err);
+            setCompaniesError("Failed to load companies.")
+          } finally{
+            setCompaniesLoading(false);
+          }
+      }
+      fetchCompanyData();
+    
+    }, []);
+
+const offerCount = applications.filter(app =>
+  app.status === "Selected").length;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-950">
@@ -89,10 +152,10 @@ function DashboardPage() {
           {/* Quick stats */}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { label: 'Profile Completion', value: '100%', icon: '📋', color: 'from-blue-400 to-blue-600' },
               { label: 'Companies visited', value: '0', icon: '📬', color: 'from-purple-400 to-purple-600' },
-              { label: 'Applications Received', value: '0', icon: '🎤', color: 'from-pink-400 to-pink-600' },
-              { label: 'Successful Offers', value: '0', icon: '🎉', color: 'from-orange-400 to-orange-600' },
+              { label: 'Job Openings', value: jobCount, icon: '📋', color: 'from-blue-400 to-blue-600' },
+              { label: 'Applications Received', value: applications.length, icon: '🎤', color: 'from-pink-400 to-pink-600' },
+              { label: 'Successful Offers', value: offerCount, icon: '🎉', color: 'from-orange-400 to-orange-600' },
             ].map((stat, idx) => (
               <div
                 key={idx}
