@@ -14,13 +14,8 @@ const ApplicationTrackerPage = () => {
   const statusColors = {
     applied: 'bg-blue-500/20 text-blue-300 border-blue-500/50',
     screening: 'bg-purple-500/20 text-purple-300 border-purple-500/50',
-    round1: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50',
-    round2: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50',
-    round3: 'bg-teal-500/20 text-teal-300 border-teal-500/50',
-    interview: 'bg-green-500/20 text-green-300 border-green-500/50',
     selected: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50',
     rejected: 'bg-red-500/20 text-red-300 border-red-500/50',
-    waitlist: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50'
   };
 
   const fetchApplications = useCallback(async () => {
@@ -54,20 +49,6 @@ const ApplicationTrackerPage = () => {
   }, [fetchApplications, fetchStats]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const handleStatusChange = async (appId, newStatus) => {
-    try {
-      await axios.put(
-        `${API_URL}/applications/${appId}`,
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchApplications();
-      fetchStats();
-      setSelectedApp(null);
-    } catch (error) {
-      alert('Error updating application: ' + error.response?.data?.message);
-    }
-  };
 
   const handleDelete = async (appId) => {
     if (confirm('Are you sure you want to delete this application?')) {
@@ -82,6 +63,55 @@ const ApplicationTrackerPage = () => {
       }
     }
   };
+
+ const handleStatus = async (app, roundChange = 0, isRejected = false) => {
+  let newStatus;
+
+  const currentRound = app.current_round;
+  const newRoundIdx = currentRound + roundChange;
+  const totalRounds = app.job?.rounds?.length || 0;
+
+  if (isRejected) {
+    if (!confirm("Are you sure you want to reject this application?")) return;
+    newStatus = "rejected";
+  } else if (newRoundIdx === -1) {
+    newStatus = "applied";
+  } else if (newRoundIdx >= totalRounds-1) {
+    newStatus = "selected";
+  } else {
+    newStatus = "screening";
+  }
+
+  try {
+    await axios.put(
+      `${API_URL}/applications/${app._id}`,
+      {
+        status: newStatus,
+        current_round: newRoundIdx,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    fetchApplications();
+    fetchStats();
+  } catch (error) {
+    alert("Error updating application");
+  }
+};
+
+  const allRounds = [
+    ...(selectedApp?.rounds_completed || []).map(round => ({
+      name: round,
+      status: "completed"
+    })),
+    ...(selectedApp?.rounds_pending || []).map(round => ({
+      name: round,
+      status: "pending"
+    }))
+  ];
+
 
   if (loading) return <div className="text-white text-center py-10">Loading...</div>;
 
@@ -139,86 +169,81 @@ const ApplicationTrackerPage = () => {
                 </div>
 
                 {/* Rounds visual */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {((app.job && app.job.rounds && app.job.rounds.length) ? app.job.rounds : ((app.rounds_pending || []).concat(app.rounds_completed || []))).map((round, idx) => {
-                    const passed = (app.rounds_completed || []).includes(round)
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  
+                  {/* Decrease button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatus(app, -1);
+                    }}
+                    disabled={app.current_round < 0}
+                    className="px-3 py-1 rounded-full bg-slate-800 text-white border border-slate-600 hover:bg-slate-700 disabled:opacity-40"
+                  >
+                    ⬅ 
+                  </button>
+
+                  {/* Rounds */}
+                  {(app.job?.rounds || []).map((round, idx) => {
+                    const passed = idx <= app.current_round;
+
                     return (
-                      <span key={idx} className={`px-3 py-1 rounded-full text-sm font-medium ${passed ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'} border ${passed ? 'border-emerald-600' : 'border-slate-700'}`}>
+                      <button
+                        key={idx}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
+                          passed
+                            ? "bg-emerald-500 text-white"
+                            : idx === app.current_round
+                            ? "bg-yellow-500 text-black"
+                            : "bg-slate-700 text-slate-400"
+                        } border ${
+                          passed ? "border-emerald-600" : "border-slate-700"
+                        }`}
+                      >
                         {round}
-                      </span>
-                    )
+                      </button>
+                    );
                   })}
+
+                  {/* Increase button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatus(app, 1);
+                    }}
+                    disabled={app.current_round >= (app.job?.rounds?.length -1)}
+                    className="px-3 py-1 rounded-full bg-teal-600 text-white border border-teal-500 hover:bg-teal-500 disabled:opacity-40"
+                  >
+                    ➡
+                  </button>
                 </div>
 
                 {selectedApp?._id === app._id && (
-                  <div className="mt-6 pt-6 border-t border-slate-700 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm text-slate-400">Current Round</label>
-                        <input
-                          type="number"
-                          value={app.current_round}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white mt-1"
-                          disabled
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm text-slate-400">Status</label>
-                        <select
-                          value={app.status}
-                          onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white mt-1"
-                        >
-                          <option value="applied">Applied</option>
-                          <option value="screening">Screening</option>
-                          <option value="round1">Round 1</option>
-                          <option value="round2">Round 2</option>
-                          <option value="round3">Round 3</option>
-                          <option value="interview">Interview</option>
-                          <option value="selected">Selected</option>
-                          <option value="rejected">Rejected</option>
-                          <option value="waitlist">Waitlist</option>
-                        </select>
-                      </div>
+                  <div
+                    className="mt-6 pt-6 border-t border-slate-700 space-y-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+
+                    <div className='flex gap-2'>
+                      {selectedApp.status!=='selected' && selectedApp.status !== 'rejected' && (
+                        <>
+                          <button
+                            onClick={() => handleStatus(app,null,true)}
+                            className="w-full bg-red-800 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition"
+                          >
+                            Rejected
+                          </button>
+                          <button
+                            onClick={() => handleDelete(app._id)}
+                            className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-lg transition"
+                          >
+                            Delete Application
+                          </button>
+                        </>
+            
+                      )}
+
                     </div>
-
-                    {app.interview_date && (
-                      <div>
-                        <label className="text-sm text-slate-400">Interview Date</label>
-                        <input
-                          type="date"
-                          value={app.interview_date?.split('T')[0]}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white mt-1"
-                          disabled
-                        />
-                      </div>
-                    )}
-
-                    {app.offer_package && (
-                      <div>
-                        <label className="text-sm text-slate-400">Offer Package (LPA)</label>
-                        <input
-                          type="number"
-                          value={app.offer_package}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white mt-1"
-                          disabled
-                        />
-                      </div>
-                    )}
-
-                    <textarea
-                      placeholder="Add notes..."
-                      value={app.notes || ''}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white mt-1"
-                      disabled
-                    />
-
-                    <button
-                      onClick={() => handleDelete(app._id)}
-                      className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-lg transition"
-                    >
-                      Delete Application
-                    </button>
                   </div>
                 )}
               </div>

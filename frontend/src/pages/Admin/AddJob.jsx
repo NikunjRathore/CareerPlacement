@@ -16,9 +16,19 @@ const AddJob = () => {
     minCgpa: '',
     minGradYear: '',
     date: '',
-    description: '',
-    rounds: ''
+    description: ''
   })
+  const [rounds, setRounds] = useState([])
+  const [selectedRound, setSelectedRound] = useState('')
+  const roundOptions = [
+    'Online Test',
+    'Technical Interview',
+    'HR Interview',
+    'Coding Round',
+    'System Design',
+    'Managerial Round',
+    'Final Discussion'
+  ]
   const [companies, setCompanies] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -39,6 +49,22 @@ const AddJob = () => {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleAddRound = () => {
+    if (!selectedRound) return
+    if (rounds.includes(selectedRound)) {
+      setError('This round is already selected')
+      return
+    }
+    setRounds((prev) => [...prev, selectedRound])
+    setSelectedRound('')
+    setError(null)
+  }
+
+  const handleRemoveRound = () => {
+    setRounds((prev) => prev.slice(0, -1))
+    setError(null)
   }
 
   const handleSubmit = async (e) => {
@@ -88,7 +114,7 @@ const AddJob = () => {
         minCgpa: Number(formData.minCgpa),
         minGradYear: Number(formData.minGradYear),
         date: new Date(formData.date).toISOString(),
-        rounds: formData.rounds ? formData.rounds.split(',').map(r => r.trim()).filter(Boolean) : []
+        rounds
       }
 
       await axios.post(`${import.meta.env.VITE_API_URL}/jobs/add_job`, payload, {
@@ -96,7 +122,9 @@ const AddJob = () => {
       })
       
       setSuccess(true)
-      setFormData({ company: '', role: '', location: '', ctc: '', offerType: '', dept: '', minCgpa: '', minGradYear: '', date: '', description: '', rounds: '' })
+      setFormData({ company: '', role: '', location: '', ctc: '', offerType: '', dept: '', minCgpa: '', minGradYear: '', date: '', description: '' })
+      setRounds([])
+      setSelectedRound('')
       setTimeout(() => navigate('/admin'), 2000)
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to create job')
@@ -106,7 +134,7 @@ const AddJob = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Post New Job</h1>
@@ -177,7 +205,50 @@ const AddJob = () => {
 
           <div className="flex flex-col gap-2 mb-6">
             <label className="text-sm font-semibold text-slate-400">Interview Rounds</label>
-            <input type="text" name="rounds" value={formData.rounds} onChange={handleChange} className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Online Test, Technical, HR" />
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+              <select
+                value={selectedRound}
+                onChange={(e) => {
+                  setSelectedRound(e.target.value)
+                  setError(null)
+                }}
+                className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
+              >
+                <option value="">Select next round</option>
+                {roundOptions.map((round) => (
+                  <option key={round} value={round} disabled={rounds.includes(round)}>
+                    {round}
+                  </option>
+                ))}
+              </select>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleAddRound}
+                  disabled={!selectedRound}
+                  className="px-4 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add Round
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRemoveRound}
+                  disabled={rounds.length === 0}
+                  className="px-4 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Remove Round
+                </button>
+              </div>
+            </div>
+            {rounds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {rounds.map((round, index) => (
+                  <span key={`${round}-${index}`} className="px-3 py-1 rounded-full bg-slate-700 text-slate-100 border border-slate-600">
+                    {round}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {error && <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded text-red-300">{error}</div>}

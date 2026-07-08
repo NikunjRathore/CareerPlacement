@@ -91,7 +91,7 @@ exports.createApplication = async (req, res) => {
 // UPDATE application status / round progress
 exports.updateApplication = async (req, res) => {
   try {
-    const { status, current_round, rounds_completed, rounds_pending, notes, interview_date, offer_package } = req.body;
+    const { status, current_round } = req.body;
 
     const application = await ApplicationTracker.findById(req.params.id);
 
@@ -106,11 +106,6 @@ exports.updateApplication = async (req, res) => {
 
     if (status) application.status = status;
     if (current_round !== undefined) application.current_round = current_round;
-    if (rounds_completed) application.rounds_completed = rounds_completed;
-    if (rounds_pending) application.rounds_pending = rounds_pending;
-    if (notes) application.notes = notes;
-    if (interview_date) application.interview_date = interview_date;
-    if (offer_package) application.offer_package = offer_package;
 
     application.updated_date = new Date();
 
@@ -123,6 +118,21 @@ exports.updateApplication = async (req, res) => {
     res.json(application);
   } catch (error) {
     res.status(400).json({ message: 'Error updating application', error: error.message });
+  }
+};
+
+//GET all the applications count
+exports.getAllApplicationsCount= async (req,res)=>{
+  //checking the auth
+  if(req.user.role!=='admin'){
+    return res.status(403).json({message:'Getting access to all the applications is allowed to admin only.'});
+  }
+  try{
+    const applications= await ApplicationTracker.find();
+    return res.status(200).json(applications.length);
+
+  }catch(err){
+    res.status(500).json({message:"Error in fetching all the applications"})
   }
 };
 

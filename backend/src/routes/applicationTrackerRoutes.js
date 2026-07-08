@@ -7,14 +7,18 @@ const {
   createApplication,
   updateApplication,
   deleteApplication,
-  getApplicationStats
+  getApplicationStats,
+  getAllApplicationsCount
 } = require('../controllers/applicationTrackerController');
 
 // All routes require authentication
 router.use(protect);
 
-// GET all user applications
+// GET all user's applications
 router.get('/', getUserApplications);
+
+// GET all applications
+router.get('/all', getAllApplicationsCount);
 
 // GET application stats
 router.get('/stats', getApplicationStats);

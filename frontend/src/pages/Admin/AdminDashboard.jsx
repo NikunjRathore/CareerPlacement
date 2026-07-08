@@ -6,83 +6,68 @@ import axios from 'axios'
 function DashboardPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout } = useAuth()
+  const { user, logout, token } = useAuth()
 
   const isBaseAdminRoute = location.pathname === '/admin' || location.pathname === '/admin/';
 
-  const handleAddJobs =()=>{
-    navigate('/admin/add_job'); 
-  }
-  const handleAddCompany = () => {
-    navigate('/admin/add_company');
-  }
-  const handleAddNotification = () => {
-    navigate('/admin/add_notification');
-  }
   const handleLogout = () => {
     logout()
   }
 
+    const [applicationsCount, setApplicationsCount] = useState(0);
     const [applications, setApplications] = useState([]);
-    const [applicaionsLoading, setApplicationsLoading] = useState(true);
-    const [applicationsError, setApplicationsError] = useState(null);
     const [jobCount, setJobCount] = useState(0);
-    const [jobsLoading, setJobsLoading] = useState(true);
-    const [jobsError, setJobsError] = useState(null);
     const [companyCount, setCompanyCount] = useState(0);
-    const [companiesLoading, setCompaniesLoading] = useState(true);
-    const [companiesError, setCompaniesError] = useState(null);
-    const {token} = useAuth();
 
     useEffect(() => {
+      if (!token) return;
+
       const fetchApplicationData= async ()=>{
          try {
-            setApplicationsLoading(true);
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/applications`,{
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/applications/all`,{
               headers: {
                 Authorization: `Bearer ${token}`
               }
             });
-            setApplications(response.data);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/applications`,{
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+            setApplications(Array.isArray(res.data) ? res.data : []);
+            setApplicationsCount(
+              typeof response.data === 'number'
+                ? response.data
+                : response.data?.count || 0
+            );
           } catch (err) {
             console.error('Error fetching application:', err);
-            setApplicationsError("Failed to loed applications.")
-          } finally{
-            setApplicationsLoading(false);
           }
       }
       fetchApplicationData();
       const fetchJobData= async ()=>{
          try {
-            setJobsLoading(true);
             const jobs = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`);
-            setJobCount(jobs.data.length);
+            setJobCount(Array.isArray(jobs.data) ? jobs.data.length : 0);
           } catch (err) {
             console.error('Error fetching jobs:', err);
-            setJobsError("Failed to loed jobs.")
-          } finally{
-            setJobsLoading(false);
           }
       }
       fetchJobData();
       const fetchCompanyData= async ()=>{
          try {
-            setCompaniesLoading(true);
             const companies = await axios.get(`${import.meta.env.VITE_API_URL}/company`);
-            setCompanyCount(companies.data.length);
+            setCompanyCount(Array.isArray(companies.data) ? companies.data.length : 0);
           } catch (err) {
             console.error('Error fetching companies:', err);
-            setCompaniesError("Failed to load companies.")
-          } finally{
-            setCompaniesLoading(false);
           }
       }
       fetchCompanyData();
     
-    }, []);
+    }, [token]);
 
 const offerCount = applications.filter(app =>
-  app.status === "Selected").length;
+  app.status === "selected").length;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-950">
@@ -154,7 +139,7 @@ const offerCount = applications.filter(app =>
             {[
               { label: 'Companies visited', value: companyCount, icon: '📬', color: 'from-purple-400 to-purple-600' },
               { label: 'Job Openings', value: jobCount, icon: '📋', color: 'from-blue-400 to-blue-600' },
-              { label: 'Applications Received', value: applications.length, icon: '🎤', color: 'from-pink-400 to-pink-600' },
+              { label: 'Applications Received', value: applicationsCount, icon: '🎤', color: 'from-pink-400 to-pink-600' },
               { label: 'Successful Offers', value: offerCount, icon: '🎉', color: 'from-orange-400 to-orange-600' },
             ].map((stat, idx) => (
               <div

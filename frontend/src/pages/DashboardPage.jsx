@@ -54,12 +54,11 @@ function DashboardPage() {
   } 
 
 const interviewCount = applications.filter(app =>
-  ["HR Round", "Round 1", "Round 2", "Technical Round"]
-    .some(round => app.rounds_completed?.includes(round))
+ app.current_round>=0
 ).length;
 
 const offerCount = applications.filter(app =>
-  app.status === "Selected").length;
+  app.status === "selected").length;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-950">
