@@ -19,10 +19,7 @@ exports.returnAnalysis= async (req,res)=>{
 exports.addResume= async (req,res) => {
     try{
         const {job_description }= req.body;
-        const filePath= req.file.path;
-        const fs= require('fs');
-        const dataBuffer= fs.readFileSync(filePath);
-        fs.unlink(filePath,(err)=> {if(err)console.log(err)});
+        const dataBuffer= req.file.buffer;
         const pdfData = await pdfParse(dataBuffer);
 
         const ai = new GoogleGenAI({
