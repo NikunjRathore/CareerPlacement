@@ -128,8 +128,8 @@ exports.getAllApplicationsCount= async (req,res)=>{
     return res.status(403).json({message:'Getting access to all the applications is allowed to admin only.'});
   }
   try{
-    const applications= await ApplicationTracker.find();
-    return res.status(200).json(applications.length);
+    const count= await ApplicationTracker.countDocuments();
+    return res.status(200).json({count});
 
   }catch(err){
     res.status(500).json({message:"Error in fetching all the applications"})

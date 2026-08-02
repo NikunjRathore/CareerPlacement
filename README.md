@@ -1,8 +1,8 @@
-# 🚀 CareerPlacement
+# 🚀 CampusPlacement
 
 A full-stack placement management platform that helps students track applications, prepare for placements, analyze readiness, and discover eligible opportunities while enabling administrators to manage companies, jobs, and placement workflows efficiently.
 
-🌐 **Live Demo:** [CareerPlacement Demo](https://career-placement.vercel.app/?utm_source=chatgpt.com)
+🌐 **Live Demo:** [CampusPlacement Demo](https://career-placement.vercel.app/?utm_source=chatgpt.com)
 
 ---
 
@@ -13,7 +13,7 @@ A full-stack placement management platform that helps students track application
 * Secure JWT-based authentication and authorization
 * Apply to placement opportunities posted by administrators
 * Track application status throughout the recruitment process
-* ATS-based resume evaluation and scoring
+* ATS-based resume evaluation and scoring with priority based feedbacks
 * Personalized placement readiness scoring
 * Coding profile tracking and progress monitoring
 * Placement analytics dashboard
@@ -24,6 +24,7 @@ A full-stack placement management platform that helps students track application
   * CGPA
   * Graduation year
   * Placement criteria
+* View placement stats
 
 ### 👨‍💼 Admin Features
 
@@ -42,7 +43,6 @@ A full-stack placement management platform that helps students track application
 
 * React.js
 * Vite
-* JavaScript
 * Tailwind CSS
 
 ### Backend
@@ -53,7 +53,6 @@ A full-stack placement management platform that helps students track application
 ### Database
 
 * MongoDB
-* Mongoose
 
 ### Authentication & Security
 
@@ -65,6 +64,7 @@ A full-stack placement management platform that helps students track application
 ### Deployment
 
 * Frontend: Vercel
+* Frontend: Render
 * Database: MongoDB Atlas
 
 ---
@@ -85,7 +85,7 @@ The platform follows a modern full-stack architecture:
 
 ### 📄 ATS Resume Evaluation
 
-Analyze resumes and generate scores to help students improve their chances during recruitment processes.
+Analyze resumes and generate score and feedbacks to help students improve their chances during recruitment processes.
 
 ### 📈 Placement Analytics Dashboard
 
@@ -169,19 +169,16 @@ CLIENT_URL=http://localhost:5173
 
 ## 🚀 Future Enhancements
 
-* Email notifications for placement updates
 * AI-powered placement recommendations
 * Advanced analytics and insights
 * Export placement reports
 * Calendar integration for recruitment schedules
-* Automated coding profile synchronization
-* Mobile application support
 
 ---
 
 ## 🎯 Motivation
 
-CareerPlacement was built to simplify the campus placement journey by combining application tracking, preparation tools, analytics, and intelligent opportunity matching into a single platform.
+CampusPlacement was built to simplify the campus placement journey by combining application tracking, preparation tools, analytics, and intelligent opportunity matching into a single platform.
 
 The goal is to help students stay organized, improve their readiness, and make informed career decisions while giving administrators efficient placement management capabilities.
 

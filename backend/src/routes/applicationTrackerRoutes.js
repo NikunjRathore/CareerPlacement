@@ -17,7 +17,7 @@ router.use(protect);
 // GET all user's applications
 router.get('/', getUserApplications);
 
-// GET all applications
+// GET all application's count
 router.get('/all', getAllApplicationsCount);
 
 // GET application stats

@@ -7,17 +7,25 @@ const PlacementReadinessPage = () => {
   const { user, token } = useContext(AuthContext);
   const [readiness, setReadiness] = useState(null);
   const [progress, setProgress] = useState(null);
+  const [resumeAnalysis, setResumeAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetchReadinessData();
+    const fetchAll = async ()=>{
+      try{
+        await Promise.all([fetchReadinessData(),fetchResumeAnalysis()])
+      }finally{
+        setLoading(false);
+      }
+    }
+    fetchAll();
   }, []);
 
   const fetchReadinessData = async () => {
     try {
-      const [readinessRes, progressRes] = await Promise.all([
+      const [readinessRes,progressRes] = await Promise.all([
         axios.get(`${API_URL}/readiness/score`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
@@ -30,8 +38,18 @@ const PlacementReadinessPage = () => {
       setProgress(progressRes.data);
     } catch (error) {
       console.error('Error fetching readiness data:', error);
-    } finally {
-      setLoading(false);
+    }
+  };
+  const fetchResumeAnalysis = async () => {
+    try {
+      const analysis = await 
+        axios.get(`${API_URL}/resume/analysis`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+      setResumeAnalysis(analysis.data);
+    } catch (error) {
+      console.error('Error fetching readiness data:', error);
     }
   };
 
@@ -62,8 +80,8 @@ const PlacementReadinessPage = () => {
             {readiness.total_score >= 80
               ? 'Excellent! You are well-prepared for placements'
               : readiness.total_score >= 60
-              ? 'Good progress! Keep improving'
-              : 'Work on the areas below to improve your readiness'}
+                ? 'Good progress! Keep improving'
+                : 'Work on the areas below to improve your readiness'}
           </p>
         </div>
 
@@ -141,19 +159,34 @@ const PlacementReadinessPage = () => {
         )}
 
         {/* Suggestions */}
-        {readiness.suggestions && readiness.suggestions.length > 0 && (
-          <div className="bg-slate-800/50 border border-blue-700/50 rounded-xl p-6">
-            <h2 className="text-2xl font-bold text-blue-400 mb-4">💡 Recommendations</h2>
-            <ul className="space-y-3">
-              {readiness.suggestions.map((suggestion, idx) => (
-                <li key={idx} className="text-slate-300 flex items-start gap-3">
-                  <span className="text-blue-400 mt-1 shrink-0">→</span>
-                  <span>{suggestion}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {resumeAnalysis &&(
+            <div className="bg-slate-800/50 border border-blue-700/50 rounded-xl p-6">
+              <h2 className="text-2xl font-bold text-blue-400 mb-4">
+                💡 Recommendations
+              </h2>
+
+              <ul className="space-y-4">
+                {resumeAnalysis?.priority_improvements?.map((item, idx) => (
+                  <li key={idx} className="text-slate-300">
+                    <p><span className="font-semibold">Priority:</span> {item.priority}</p>
+                    <p><span className="font-semibold">Issue:</span> {item.issue}</p>
+                    <p><span className="font-semibold">Solution:</span> {item.solution}</p>
+                  </li>
+                ))}
+              </ul>
+
+              {resumeAnalysis.final_feedback && (
+                <>
+                  <h3 className="text-xl font-bold text-blue-400 mt-6 mb-2">
+                    📋 Final Feedback
+                  </h3>
+                  <p className="text-slate-300">
+                    {resumeAnalysis.final_feedback}
+                  </p>
+                </>
+              )}
+            </div>
+          )}
       </div>
     </div>
   );

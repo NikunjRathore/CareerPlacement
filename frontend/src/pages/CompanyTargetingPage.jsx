@@ -18,16 +18,9 @@ const CompanyTargetingPage = () => {
 
   const fetchCompanyData = async () => {
     try {
-      const [recommended, targeted] = await Promise.all([
-        axios.get(`${API_URL}/company-data/recommended`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`${API_URL}/company-data/targets`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
-
-      setCompanies(recommended.data);
+      const response= await axios.get(`${API_URL}/company`);
+      setCompanies(response.data);
+      const targeted= await axios.get(`${API_URL}/company/:id/targets`);
       setTargetedCompanies(targeted.data);
     } catch (error) {
       console.error('Error fetching company data:', error);
@@ -52,7 +45,7 @@ const CompanyTargetingPage = () => {
   const handleRemoveTarget = async (companyId) => {
     try {
       await axios.delete(
-        `${API_URL}/company-data/targets/${companyId}`,
+        `${API_URL}/company/targets/${companyId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchCompanyData();
